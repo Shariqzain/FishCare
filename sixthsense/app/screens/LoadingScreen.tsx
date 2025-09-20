@@ -8,9 +8,11 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
+import { useFonts, CinzelDecorative_700Bold } from '@expo-google-fonts/cinzel-decorative';
 import { Video, ResizeMode } from 'expo-av';
 import { useVideoPreload } from '../hooks/useVideoPreload';
 const { width, height } = Dimensions.get('window');
+
 
 export default function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   const videoSource = require('../../assets/images/jellyfish.mp4');
@@ -18,8 +20,10 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   const progressAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const [progress, setProgress] = useState(0);
+  const [fontsLoaded] = useFonts({ CinzelDecorative_700Bold });
 
   useEffect(() => {
+    if (!fontsLoaded) return;
     // Animate progress bar
     Animated.timing(progressAnim, {
       toValue: 100,
@@ -53,8 +57,9 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
     return () => {
       progressAnim.removeListener(id);
     };
-  }, []);
+  }, [fontsLoaded]);
 
+  if (!fontsLoaded) return null;
 
   const scaleX = progressAnim.interpolate({
     inputRange: [0, 100],
@@ -168,8 +173,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 48,
     fontFamily: Platform.select({
-      ios: 'rockwell-extrabold',
-      android: 'rockwell-extrabold',
+      ios: 'CinzelDecorative_700Bold',
+      android: 'CinzelDecorative_700Bold',
+      default: 'CinzelDecorative_700Bold',
     }),
     textShadowColor: 'rgba(0,0,0,0.75)',
     textShadowOffset: { width: 2, height: 2 },

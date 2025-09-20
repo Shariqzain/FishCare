@@ -1,59 +1,43 @@
-import React, { useEffect } from 'react';
-import { View, Animated, StyleSheet, Dimensions, Platform } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+import React, { useEffect, useRef } from 'react';
+import { View, Animated, StyleSheet, Platform } from 'react-native';
+import { useFonts, CinzelDecorative_700Bold } from '@expo-google-fonts/cinzel-decorative';
 
-export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
-  // Single fade animation for both words
-  const fadeIn = new Animated.Value(0);
-  const fadeOutAll = new Animated.Value(1);
+interface SplashScreenProps {
+  onComplete: () => void;
+}
+
+export default function SplashScreen({ onComplete }: SplashScreenProps) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeOutAnim = useRef(new Animated.Value(1)).current;
+  const [fontsLoaded] = useFonts({ CinzelDecorative_700Bold });
 
   useEffect(() => {
-    // Animation sequence
+    if (!fontsLoaded) return;
     Animated.sequence([
-      // Fade in both words simultaneously
-      Animated.timing(fadeIn, {
+      Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 1200,
         useNativeDriver: true,
       }),
-      // Hold both words visible
       Animated.delay(1500),
-      // Fade out everything
-      Animated.timing(fadeOutAll, {
+      Animated.timing(fadeOutAnim, {
         toValue: 0,
         duration: 1000,
         useNativeDriver: true,
       }),
     ]).start(() => {
-      onComplete();
+      onComplete && onComplete();
     });
-  }, []);
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
 
   return (
     <View style={styles.container}>
-      <Animated.View 
-        style={[
-          styles.textContainer,
-          { opacity: fadeOutAll }
-        ]}
-      >
-        <Animated.Text 
-          style={[
-            styles.text,
-            { opacity: fadeIn }
-          ]}
-        >
-          SIXTH
-        </Animated.Text>
-        <Animated.Text 
-          style={[
-            styles.text,
-            { opacity: fadeIn }
-          ]}
-        >
-          SENSE
-        </Animated.Text>
+      <Animated.View style={[styles.textContainer, { opacity: fadeOutAnim }]}> 
+        <Animated.Text style={[styles.text, { opacity: fadeAnim }]}>SIXTH</Animated.Text>
+        <Animated.Text style={[styles.text, { opacity: fadeAnim }]}>SENSE</Animated.Text>
       </Animated.View>
     </View>
   );
@@ -62,35 +46,32 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
   },
   textContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    // Container glow effect
-    shadowColor: '#FFFFFF',
+    shadowColor: '#fff',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.75,
     shadowRadius: 20,
-    elevation: 10, // Android elevation for glow
-    padding: 20, // Add padding to make glow visible
+    elevation: 10,
+    padding: 20,
   },
   text: {
-    color: '#FFFFFF',
+    color: '#fff',
     fontSize: 72,
-    fontWeight: '900',
-    letterSpacing: 3, // Wider spacing like the geometric style
+    fontFamily: Platform.select({
+      ios: 'CinzelDecorative_700Bold',
+      android: 'CinzelDecorative_700Bold',
+      default: 'CinzelDecorative_700Bold',
+    }),
+    letterSpacing: 3,
     marginVertical: -12,
-    // Multiple layered shadows for stronger glow effect
-    textShadowColor: '#FFFFFF',
+    textShadowColor: '#fff',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 12,
-    fontFamily: Platform.select({
-      ios: 'Orbitron-Bold',
-      android: 'Orbitron-Bold',
-      default: 'rockwell-extrabold',
-    }),
   },
 });
