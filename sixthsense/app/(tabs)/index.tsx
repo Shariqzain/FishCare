@@ -113,11 +113,6 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
-  videoBackground: {
-    width: width,
-    height: height,
-    position: 'absolute',
-  },
   loading: {
     backgroundColor: 'rgba(0,0,0,0.5)',
   },

@@ -15,19 +15,28 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarPosition: 'bottom',
+        tabBarStyle: { backgroundColor: 'rgba(12, 12, 12, 0.73)',
+          borderTopColor: '#000',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+         },
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: () => <IconSymbol size={28} name="house.fill" color="#3c6570ff" />,
         }}
       />
+      {/* Removed signin and signup screens */}
+      
       <Tabs.Screen
-        name="explore"
+        name="profile"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Profile',
+          tabBarIcon: () => <IconSymbol size={28} name="person.circle" color="#3c6570ff" />,
         }}
       />
     </Tabs>
