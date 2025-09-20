@@ -1,20 +1,17 @@
-import { StyleSheet, TouchableOpacity, View, Dimensions } from 'react-native';
-
-const { width, height } = Dimensions.get('window');
-import { Video, ResizeMode } from 'expo-av';
-import { useVideoPreload } from '../hooks/useVideoPreload';
+import { StyleSheet, TouchableOpacity, View, Dimensions, Image, Text } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
-import React, { useState, useEffect, useRef } from 'react';
-import { ThemedText } from '@/components/themed-text';
+import React, { useState, useEffect } from 'react';
+import { Feather } from '@expo/vector-icons';
+
+const { width, height } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [hasGalleryPermission, setHasGalleryPermission] = useState<boolean | null>(null);
-  const [isVideoReady, setIsVideoReady] = useState(false);
-  const videoRef = useRef<Video>(null);
+  const [currentTime, setCurrentTime] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -26,119 +23,174 @@ export default function HomeScreen() {
       const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setHasGalleryPermission(galleryStatus.status === 'granted');
     })();
+
+    // Update time
+    const updateTime = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true 
+      };
+      setCurrentTime(now.toLocaleDateString('en-US', options));
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 60000);
+    return () => clearInterval(timer);
   }, []);
 
-  const takePhoto = async () => {
+  const scanPhoto = async () => {
     if (hasCameraPermission) {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [1, 1],
         quality: 1,
       });
 
       if (!result.canceled) {
         // Handle the captured image
         console.log(result.assets[0].uri);
-        // You can add navigation or image processing logic here
+        // Add scanning logic here
       }
     } else {
-      alert('Camera permission is required to take photos');
+      alert('Camera permission is required to scan');
     }
   };
 
-  const pickImage = async () => {
+  const uploadData = async () => {
     if (hasGalleryPermission) {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [1, 1],
         quality: 1,
       });
 
       if (!result.canceled) {
         // Handle the selected image
         console.log(result.assets[0].uri);
-        // You can add navigation or image processing logic here
+        // Add upload logic here
       }
     } else {
-      alert('Gallery permission is required to select photos');
+      alert('Gallery permission is required to upload');
     }
   };
 
   return (
     <View style={styles.container}>
-            <Video
-        ref={videoRef}
-        source={require('../../assets/images/jellyfish.mp4')}
-        style={styles.videoBackground}
-        resizeMode={ResizeMode.COVER}
-        shouldPlay
-        isLooping
-        isMuted
-        onLoad={(status) => {
-          if (status && 'isLoaded' in status && status.isLoaded) {
-            setIsVideoReady(true);
-          }
-        }}
-        onError={(error) => {
-          console.log('Video Error:', error);
-          setIsVideoReady(true); // Fallback to show content even if video fails
-        }}
-      />
-      <BlurView intensity={80} tint="dark" style={[StyleSheet.absoluteFill, !isVideoReady && styles.loading]}>
-        <View style={styles.content}>
-          <TouchableOpacity style={styles.button} onPress={takePhoto}>
-            <ThemedText type="subtitle" style={styles.buttonText}>
-              Take Photo
-            </ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={pickImage}>
-            <ThemedText type="subtitle" style={styles.buttonText}>
-              Upload Photo
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
+      <BlurView intensity={20} tint="light" style={styles.header}>
+        <Text style={styles.welcomeText}>Welcome, Fisherman 👋</Text>
+        <Text style={styles.timeText}>{currentTime}</Text>
       </BlurView>
+      
+      <View style={styles.circleContainer}>
+        <View style={styles.circle}>
+          <Image 
+            source={require('../../assets/images/fishhome.jpeg')}
+            style={styles.circleImage}
+            resizeMode="cover"
+          />
+        </View>
+        <TouchableOpacity style={styles.scanButton} onPress={scanPhoto}>
+          <Feather name="camera" size={24} color="white" />
+          <Text style={styles.scanButtonText}>Scan</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.bottomButtons}>
+        <TouchableOpacity style={styles.actionButton} onPress={uploadData}>
+          <BlurView intensity={20} tint="light" style={styles.actionButtonContent}>
+            <Feather name="upload" size={24} color="white" />
+            <Text style={styles.actionButtonText}>Upload Data</Text>
+          </BlurView>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <BlurView intensity={20} tint="light" style={styles.actionButtonContent}>
+            <Feather name="clock" size={24} color="white" />
+            <Text style={styles.actionButtonText}>View History</Text>
+          </BlurView>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  videoBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
-  loading: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: '#186280ff',
+    padding: 20,
   },
-  content: {
+  header: {
+    marginTop: 40,
+    borderRadius: 15,
+    overflow: 'hidden',
+    padding: 15,
+  },
+  welcomeText: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  timeText: {
+    color: '#aaa',
+    fontSize: 16,
+    marginTop: 5,
+  },
+  circleContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
   },
-  button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
+  circle: {
+    width: width * 0.8,
+    height: width * 0.8,
+    borderRadius: (width * 0.8) / 2,
+    overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: '#3c6570',
+  },
+  circleImage: {
+    width: '100%',
+    height: '100%',
+  },
+  scanButton: {
+    backgroundColor: '#3c6570',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
     borderRadius: 25,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    width: '80%',
+    marginTop: -30,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
   },
-  buttonText: {
-    color: 'white',
+  scanButtonText: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  bottomButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: 20,
+  },
+  actionButton: {
+    borderRadius: 15,
+    overflow: 'hidden',
+    width: '48%',
+  },
+  actionButtonContent: {
+    alignItems: 'center',
+    gap: 8,
+    padding: 15,
+    width: '100%',
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

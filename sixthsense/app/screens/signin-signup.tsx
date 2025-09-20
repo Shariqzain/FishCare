@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ImageBackground, Dimensions, Platform } from "react-native";
+import { BlurView } from 'expo-blur';
+
+const { width, height } = Dimensions.get('window');
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 type SigninSignupScreenProps = {
 	onLogin?: () => void;
@@ -8,6 +12,7 @@ type SigninSignupScreenProps = {
 
 
 const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
+	const router = useRouter();
 	const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
@@ -53,10 +58,9 @@ const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
 				Alert.alert("Error", "Please enter both email and password.");
 				return;
 			}
-			// Instantly log in and show welcome message
-			setIsLoggedIn(true);
+			// Instantly log in and navigate to home
 			await AsyncStorage.setItem('isLoggedIn', 'true');
-			if (onLogin) onLogin();
+			router.replace('/(tabs)');
 		}
 	};
 
@@ -66,12 +70,19 @@ const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
 		if (!isLoggedIn) {
 			return (
 				<View style={styles.container}>
-					<Text style={styles.title}>{mode === 'signin' ? 'Sign In' : 'Sign Up'}</Text>
+					<ImageBackground
+						source={require('../../assets/images/fishsignup.jpeg')}
+						style={styles.backgroundImage}
+						resizeMode="cover"
+					>
+						<View style={styles.overlay}>
+							<BlurView intensity={70} tint="dark" style={styles.glassContainer}>
+							<Text style={styles.title}>{mode === 'signin' ? 'Sign In' : 'Sign Up'}</Text>
 					{mode === 'signup' && (
 						<TextInput
 							style={styles.input}
 							placeholder="Name"
-							placeholderTextColor="#aaa"
+							placeholderTextColor="#98a0aaff"
 							value={name}
 							onChangeText={setName}
 							autoCapitalize="words"
@@ -80,7 +91,7 @@ const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
 					<TextInput
 						style={styles.input}
 						placeholder="Email"
-						placeholderTextColor="#aaa"
+						placeholderTextColor="#98a0aaff"
 						value={email}
 						onChangeText={setEmail}
 						keyboardType="email-address"
@@ -89,7 +100,7 @@ const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
 					<TextInput
 						style={styles.input}
 						placeholder="Password"
-						placeholderTextColor="#aaa"
+						placeholderTextColor="#98a0aaff"
 						value={password}
 						onChangeText={setPassword}
 						secureTextEntry
@@ -98,7 +109,7 @@ const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
 						<TextInput
 							style={styles.input}
 							placeholder="Confirm Password"
-							placeholderTextColor="#aaa"
+							placeholderTextColor="#98a0aaff"
 							value={confirmPassword}
 							onChangeText={setConfirmPassword}
 							secureTextEntry
@@ -115,8 +126,11 @@ const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
 							{mode === 'signin'
 								? "Don't have an account? Sign Up"
 								: 'Already have an account? Sign In'}
-						</Text>
-					</Pressable>
+							</Text>
+						</Pressable>
+						</BlurView>
+						</View>
+					</ImageBackground>
 				</View>
 			);
 		}
@@ -124,8 +138,18 @@ const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
 	// Show welcome message if logged in
 	return (
 		<View style={styles.container}>
-			<Text style={styles.title}>Welcome!</Text>
-			<Text style={styles.info}>You are now signed in.</Text>
+			<ImageBackground
+				source={require('../../assets/images/fishsignup.jpeg')}
+				style={styles.backgroundImage}
+				resizeMode="cover"
+			>
+				<View style={styles.overlay}>
+					<BlurView intensity={70} tint="dark" style={styles.glassContainer}>
+						<Text style={styles.title}>Welcome!</Text>
+						<Text style={styles.info}>You are now signed in.</Text>
+					</BlurView>
+				</View>
+			</ImageBackground>
 		</View>
 	);
 };
@@ -133,33 +157,74 @@ const SigninSignupScreen: React.FC<SigninSignupScreenProps> = ({ onLogin }) => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		justifyContent: "center",
+	},
+	backgroundImage: {
+		flex: 1,
+		width: width,
+		height: height,
+	},
+	overlay: {
+		flex: 1,
+		backgroundColor: 'rgba(0,0,0,0.3)',
+		justifyContent: 'center',
 		padding: 24,
-		backgroundColor: "#000",
+	},
+	glassContainer: {
+		padding: 20,
+		borderRadius: 20,
+		overflow: 'hidden',
+		backdropFilter: 'blur(10px)',
+		backgroundColor: 'rgba(255, 255, 255, 0.1)',
+		borderWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.2)',
 	},
 	title: {
 		fontSize: 28,
 		fontWeight: "bold",
 		marginBottom: 32,
 		textAlign: "center",
-		color: "#3c6570ff",
+		color: "#00c8ffff",
 	},
 	input: {
 		borderWidth: 1,
-		borderColor: "#3c6570ff",
+		borderColor: "rgba(255, 255, 255, 0.3)",
 		borderRadius: 8,
 		padding: 12,
 		marginBottom: 16,
 		fontSize: 16,
 		color: "#fff",
-		backgroundColor: "#111",
+		backgroundColor: "rgba(255, 255, 255, 0.1)",
+		...Platform.select({
+			ios: {
+				shadowColor: '#fff',
+				shadowOffset: { width: 0, height: 1 },
+				shadowOpacity: 0.2,
+				shadowRadius: 3,
+			},
+			android: {
+				elevation: 2,
+			},
+		}),
 	},
 	button: {
-		backgroundColor: "#3c6570ff",
+		backgroundColor: "rgba(0, 200, 255, 0.6)",
 		padding: 16,
 		borderRadius: 8,
 		alignItems: "center",
 		marginTop: 8,
+		borderWidth: 1,
+		borderColor: "rgba(255, 255, 255, 0.2)",
+		...Platform.select({
+			ios: {
+				shadowColor: '#fff',
+				shadowOffset: { width: 0, height: 2 },
+				shadowOpacity: 0.25,
+				shadowRadius: 3.84,
+			},
+			android: {
+				elevation: 5,
+			},
+		}),
 	},
 	buttonText: {
 		color: "#fff",
@@ -171,7 +236,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	linkText: {
-		color: "#3c6570ff",
+		color: "#00c8ffff",
 		textDecorationLine: "underline",
 		fontSize: 16,
 	},

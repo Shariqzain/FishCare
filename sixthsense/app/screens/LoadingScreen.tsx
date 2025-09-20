@@ -9,15 +9,10 @@ import {
   Platform,
 } from 'react-native';
 import { useFonts, CinzelDecorative_700Bold } from '@expo-google-fonts/cinzel-decorative';
-import { Video, ResizeMode } from 'expo-av';
-import { useVideoPreload } from '../hooks/useVideoPreload';
 const { width, height } = Dimensions.get('window');
-import { BlurView } from 'expo-blur';
 
 
 export default function LoadingScreen({ onComplete }: { onComplete: () => void }) {
-  const videoSource = require('../../assets/images/changingFishBlurred.mov');
-  const isVideoReady = useVideoPreload(videoSource);
   const progressAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const [progress, setProgress] = useState(0);
@@ -78,15 +73,6 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
 
   return (
     <View style={styles.container}>
-      <Video
-        source={require('../../assets/images/changingFishBlurred.mov')}
-        style={[styles.videoBackground]}
-        resizeMode={ResizeMode.COVER}
-        shouldPlay
-        isLooping
-        isMuted
-      />
-      
       <View style={styles.overlay}>
         <View style={styles.logoContainer}>
           <Image
@@ -129,16 +115,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
-  },
-  videoBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    backgroundColor: '#000000ff',
   },
   overlay: {
     flex: 1,
@@ -155,14 +132,14 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 120,
-    borderWidth: 4,
-    borderColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#ffffffff',
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 8,
     ...Platform.select({
       ios: {
-        shadowColor: '#002fffff',
+        shadowColor: '#000000ff',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
@@ -173,21 +150,20 @@ const styles = StyleSheet.create({
     }),
   },
   title: {
-    color: '#FFFFFF',
+    color: '#ffffffff',
     paddingTop: 20,
     letterSpacing: 3,
     marginTop: 10,
     textAlign: 'center',
     fontSize: 48,
-
     fontFamily: Platform.select({
       ios: 'CinzelDecorative_700Bold',
       android: 'CinzelDecorative_700Bold',
       default: 'CinzelDecorative_700Bold',
     }),
-    textShadowColor: 'rgba(0,0,0,0.75)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 3,
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   progressContainer: {
     width: '100%',
@@ -244,11 +220,8 @@ const styles = StyleSheet.create({
     width: '100%',
     textAlign: 'center',
     lineHeight: 30,
-    color: '#FFFFFF',
+    color: '#ffffffff',
     fontSize: 16,
     fontWeight: 'bold',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
   },
 });

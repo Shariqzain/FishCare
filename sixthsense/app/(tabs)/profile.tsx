@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Alert, TouchableOpacity, Animated, Easing } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useRouter } from 'expo-router';
 
 type MaterialIconName = React.ComponentProps<typeof MaterialIcons>['name'];
 
@@ -13,30 +14,15 @@ const settings: { icon: MaterialIconName; label: string; onPress: () => void }[]
   { icon: 'info', label: 'About', onPress: () => Alert.alert('About', 'FishCare App v1.0') },
 ];
 
-import type { StackNavigationProp } from '@react-navigation/stack';
-
-type ProfileSettingsProps = {
-  navigation: StackNavigationProp<any>;
-};
-
-const ProfileSettings = ({ navigation }: ProfileSettingsProps) => {
+const ProfileSettings = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownAnim] = useState(new Animated.Value(0));
 
+  const router = useRouter();
+
   const handleLogout = async () => {
     await AsyncStorage.removeItem('isLoggedIn');
-    Alert.alert('Logged out', 'You have been logged out.', [
-      {
-        text: 'OK',
-        onPress: () => {
-          if (navigation && navigation.replace) {
-            navigation.replace('/');
-          } else {
-            if (global && global.location && global.location.reload) global.location.reload();
-          }
-        },
-      },
-    ]);
+    router.replace('/screens/signin-signup');
   };
 
   const toggleDropdown = () => {
