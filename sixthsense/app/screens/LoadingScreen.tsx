@@ -12,10 +12,11 @@ import { useFonts, CinzelDecorative_700Bold } from '@expo-google-fonts/cinzel-de
 import { Video, ResizeMode } from 'expo-av';
 import { useVideoPreload } from '../hooks/useVideoPreload';
 const { width, height } = Dimensions.get('window');
+import { BlurView } from 'expo-blur';
 
 
 export default function LoadingScreen({ onComplete }: { onComplete: () => void }) {
-  const videoSource = require('../../assets/images/jellyfish.mp4');
+  const videoSource = require('../../assets/images/changingFishBlurred.mov');
   const isVideoReady = useVideoPreload(videoSource);
   const progressAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
@@ -78,20 +79,22 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   return (
     <View style={styles.container}>
       <Video
-        source={require('../../assets/images/jellyfish.mp4')}
+        source={require('../../assets/images/changingFishBlurred.mov')}
         style={[styles.videoBackground]}
         resizeMode={ResizeMode.COVER}
         shouldPlay
         isLooping
         isMuted
       />
+      
       <View style={styles.overlay}>
         <View style={styles.logoContainer}>
-          <Text style={styles.title}>FishCare</Text>
           <Image
             source={require('../../assets/images/fishlogo.jpg')}
             style={styles.logo}
           />
+          
+          <Text style={styles.title}>FishCare</Text>
         </View>
 
         <View style={styles.progressContainer}>
@@ -147,15 +150,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
   logo: {
     width: 120,
     height: 120,
-    marginLeft: 20,
     borderWidth: 4,
     borderColor: '#fff',
     backgroundColor: '#fff',
+    borderRadius: 20,
     padding: 8,
     ...Platform.select({
       ios: {
@@ -171,7 +174,12 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#FFFFFF',
+    paddingTop: 20,
+    letterSpacing: 3,
+    marginTop: 10,
+    textAlign: 'center',
     fontSize: 48,
+
     fontFamily: Platform.select({
       ios: 'CinzelDecorative_700Bold',
       android: 'CinzelDecorative_700Bold',
@@ -209,7 +217,7 @@ const styles = StyleSheet.create({
     top: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: '#3c6570ff',
+    backgroundColor: '#1648c7ff',
     borderRadius: 15,
     transformOrigin: 'left',
     zIndex: 2,
