@@ -1,109 +1,93 @@
-
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert, TouchableOpacity, Animated, Easing } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-const Profile = () => {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+type MaterialIconName = React.ComponentProps<typeof MaterialIcons>['name'];
 
-  const handleAuth = () => {
-    if (mode === 'signup') {
-      if (!name || !email || !password || !confirmPassword) {
-        Alert.alert("Error", "Please fill in all fields.");
-        return;
-      }
-      if (password !== confirmPassword) {
-        Alert.alert("Error", "Passwords do not match.");
-        return;
-      }
-      Alert.alert("Success", "Account created!", [
-        {
-          text: "OK",
-          onPress: () => setMode('signin'),
+const settings: { icon: MaterialIconName; label: string; onPress: () => void }[] = [
+  { icon: 'person', label: 'Edit Profile', onPress: () => Alert.alert('Edit Profile', 'Coming soon!') },
+  { icon: 'notifications', label: 'Notifications', onPress: () => Alert.alert('Notifications', 'Coming soon!') },
+  { icon: 'palette', label: 'Theme', onPress: () => Alert.alert('Theme', 'Coming soon!') },
+  { icon: 'help-outline', label: 'Help & Support', onPress: () => Alert.alert('Help & Support', 'Coming soon!') },
+  { icon: 'info', label: 'About', onPress: () => Alert.alert('About', 'FishCare App v1.0') },
+];
+
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+type ProfileSettingsProps = {
+  navigation: StackNavigationProp<any>;
+};
+
+const ProfileSettings = ({ navigation }: ProfileSettingsProps) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownAnim] = useState(new Animated.Value(0));
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('isLoggedIn');
+    Alert.alert('Logged out', 'You have been logged out.', [
+      {
+        text: 'OK',
+        onPress: () => {
+          if (navigation && navigation.replace) {
+            navigation.replace('/');
+          } else {
+            if (global && global.location && global.location.reload) global.location.reload();
+          }
         },
-      ]);
-    } else {
-      if (!email || !password) {
-        Alert.alert("Error", "Please enter both email and password.");
-        return;
-      }
-      // Simulate authentication (replace with real logic)
-      // if (email === "user@example.com" && password === "password") {
-      //   setIsLoggedIn(true);
-      // } else {
-      //   Alert.alert("Error", "Invalid credentials.");
-      // }
-      setIsLoggedIn(true); // For demo purposes, log in any user
-    }
+      },
+    ]);
   };
 
-  if (!isLoggedIn) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>{mode === 'signin' ? 'Sign In' : 'Sign Up'}</Text>
-        {mode === 'signup' && (
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            placeholderTextColor="#aaa"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-          />
-        )}
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#aaa"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#aaa"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        {mode === 'signup' && (
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            placeholderTextColor="#aaa"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
-        )}
-        <Pressable style={styles.button} onPress={handleAuth}>
-          <Text style={styles.buttonText}>{mode === 'signin' ? 'Sign In' : 'Sign Up'}</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-          style={styles.linkContainer}
-        >
-          <Text style={styles.linkText}>
-            {mode === 'signin'
-              ? "Don't have an account? Sign Up"
-              : 'Already have an account? Sign In'}
-          </Text>
-        </Pressable>
-      </View>
-    );
-  }
+  const toggleDropdown = () => {
+    setDropdownOpen((open) => {
+      Animated.timing(dropdownAnim, {
+        toValue: open ? 0 : 1,
+        duration: 250,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: false,
+      }).start();
+      return !open;
+    });
+  };
 
-  // Show profile if logged in
+  const dropdownHeight = dropdownAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, (settings.length + 1) * 56],
+  });
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to your Profile!</Text>
-      <Text style={styles.info}>This is your profile page.</Text>
+      <View style={styles.navbar}>
+        <TouchableOpacity style={styles.navbarButton} onPress={toggleDropdown} activeOpacity={0.7}>
+          <MaterialIcons name="menu" size={28} color="#3c6570ff" />
+          <Text style={styles.navbarTitle}>Account Management</Text>
+          <MaterialIcons name={dropdownOpen ? "expand-less" : "expand-more"} size={28} color="#3c6570ff" />
+        </TouchableOpacity>
+        <Animated.View style={[styles.dropdown, { height: dropdownHeight, overflow: 'hidden' }]}>
+          {settings.map((item) => (
+            <Pressable
+              key={item.label}
+              style={({ pressed }) => [styles.dropdownItem, pressed && styles.dropdownItemPressed]}
+              onPress={() => {
+                setDropdownOpen(false);
+                item.onPress();
+              }}
+            >
+              <MaterialIcons name={item.icon} size={22} color="#3c6570ff" style={styles.icon} />
+              <Text style={styles.dropdownLabel}>{item.label}</Text>
+            </Pressable>
+          ))}
+          <Pressable style={[styles.dropdownItem, styles.logoutRow]} onPress={() => { setDropdownOpen(false); handleLogout(); }}>
+            <MaterialIcons name="logout" size={22} color="#f44336" style={styles.icon} />
+            <Text style={[styles.dropdownLabel, styles.logoutLabel]}>Log Out</Text>
+          </Pressable>
+        </Animated.View>
+      </View>
+      <View style={styles.bodyContent}>
+        <Text style={styles.welcomeTitle}>Welcome to FishCare Settings</Text>
+        <Text style={styles.info}>Manage your preferences and account here.</Text>
+      </View>
     </View>
   );
 };
@@ -111,53 +95,92 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: '#10141a',
+    padding: 0,
+  },
+  navbar: {
+    backgroundColor: '#181f2a',
+    paddingTop: 48,
+    paddingBottom: 8,
+    paddingHorizontal: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#232b38',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  navbarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  navbarTitle: {
+    color: '#3c6570ff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginHorizontal: 12,
+    flex: 1,
+    textAlign: 'center',
+    letterSpacing: 1,
+  },
+  dropdown: {
+    width: '100%',
+    backgroundColor: '#181f2a',
+    borderBottomLeftRadius: 18,
+    borderBottomRightRadius: 18,
+    borderTopWidth: 1,
+    borderTopColor: '#232b38',
+    overflow: 'hidden',
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderBottomWidth: 1,
+    borderBottomColor: '#232b38',
+    backgroundColor: 'transparent',
+  },
+  dropdownItemPressed: {
+    backgroundColor: '#232b38',
+  },
+  dropdownLabel: {
+    fontSize: 17,
+    color: '#fff',
+    flex: 1,
+  },
+  logoutRow: {
+    borderBottomWidth: 0,
+    backgroundColor: '#181f2a',
+  },
+  logoutLabel: {
+    color: '#f44336',
+    fontWeight: 'bold',
+  },
+  icon: {
+    marginRight: 18,
+  },
+  bodyContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 24,
-    backgroundColor: "#000",
   },
-  title: {
+  welcomeTitle: {
     fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 32,
-    textAlign: "center",
-    color: "#2196F3",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#2196F3",
-    borderRadius: 8,
-    padding: 12,
+    fontWeight: 'bold',
+    color: '#3c6570ff',
     marginBottom: 16,
-    fontSize: 16,
-    color: "#fff",
-    backgroundColor: "#111",
-  },
-  button: {
-    backgroundColor: "#2196F3",
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
-  linkContainer: {
-    marginTop: 16,
-    alignItems: "center",
-  },
-  linkText: {
-    color: "#2196F3",
-    textDecorationLine: "underline",
-    fontSize: 16,
+    textAlign: 'center',
   },
   info: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 18,
     textAlign: 'center',
   },
 });
 
-export default Profile;
+export default ProfileSettings;
+

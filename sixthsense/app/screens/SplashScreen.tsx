@@ -87,6 +87,10 @@ const styles = StyleSheet.create({
     textShadowColor: '#FFFFFF',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 12,
-    fontFamily: 'Fantasyw',
+    fontFamily: Platform.select({
+      ios: 'Orbitron-Bold',
+      android: 'Orbitron-Bold',
+      default: 'rockwell-extrabold',
+    }),
   },
 });

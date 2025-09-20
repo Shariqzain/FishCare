@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -15,18 +15,23 @@ const { width, height } = Dimensions.get('window');
 export default function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   const videoSource = require('../../assets/images/jellyfish.mp4');
   const isVideoReady = useVideoPreload(videoSource);
-  const [progress, setProgress] = useState(0);
   const progressAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     // Animate progress bar
     Animated.timing(progressAnim, {
       toValue: 100,
       duration: 3000, // 3 seconds to load
-      useNativeDriver: false,
+      useNativeDriver: true, // Use native driver for smoother animation
     }).start(() => {
       onComplete();
+    });
+
+    // Listen to progressAnim and update progress state
+    const id = progressAnim.addListener(({ value }) => {
+      setProgress(Math.round(value));
     });
 
     // Subtle glow animation
@@ -45,26 +50,25 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       ])
     ).start();
 
-    // Update progress percentage
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 30);
-
-    return () => clearInterval(progressInterval);
+    return () => {
+      progressAnim.removeListener(id);
+    };
   }, []);
+
 
   const scaleX = progressAnim.interpolate({
     inputRange: [0, 100],
     outputRange: [0, 1],
+    extrapolate: 'clamp',
   });
 
   const glowOpacity = glowAnim;
+
+  // Animated percentage for smooth text
+  const progressText = progressAnim.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0, 100],
+  });
 
   return (
     <View style={styles.container}>
@@ -106,7 +110,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
                 ]}
               />
             </View>
-            <Text style={styles.progressText}>{`${progress}%`}</Text>
+            <Text style={styles.progressText}>{progress}%</Text>
           </View>
         </View>
       </View>
@@ -164,8 +168,8 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 48,
     fontFamily: Platform.select({
-      ios: 'Acropolis',
-      android: 'Acropolis',
+      ios: 'rockwell-extrabold',
+      android: 'rockwell-extrabold',
     }),
     textShadowColor: 'rgba(0,0,0,0.75)',
     textShadowOffset: { width: 2, height: 2 },
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
     top: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#3c6570ff',
     borderRadius: 15,
     transformOrigin: 'left',
     zIndex: 2,
@@ -210,9 +214,9 @@ const styles = StyleSheet.create({
     top: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#3c6570ff',
     borderRadius: 15,
-    shadowColor: '#4CAF50',
+    shadowColor: '#3c6570ff',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 6,

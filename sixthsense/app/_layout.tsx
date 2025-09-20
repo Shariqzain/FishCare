@@ -6,6 +6,7 @@ import { useState } from 'react';
 import SplashScreen from './screens/SplashScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import SigninSignupScreen from './screens/signin-signup';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -15,6 +16,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [showSplash, setShowSplash] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAuth, setShowAuth] = useState(true);
 
   if (showSplash) {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;
@@ -22,6 +24,10 @@ export default function RootLayout() {
 
   if (isLoading) {
     return <LoadingScreen onComplete={() => setIsLoading(false)} />;
+  }
+
+  if (showAuth) {
+    return <SigninSignupScreen onLogin={() => setShowAuth(false)} />;
   }
 
   return (

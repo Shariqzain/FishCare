@@ -30,15 +30,15 @@ export default function TabLayout() {
           tabBarIcon: () => <IconSymbol size={28} name="house.fill" color="#3c6570ff" />,
         }}
       />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            tabBarIcon: () => <IconSymbol size={28} name="person.circle" color="#3c6570ff" />,
+          }}
+        />
       {/* Removed signin and signup screens */}
       
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: () => <IconSymbol size={28} name="person.circle" color="#3c6570ff" />,
-        }}
-      />
     </Tabs>
   );
 }
