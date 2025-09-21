@@ -46,9 +46,9 @@ const ProfileSettings = () => {
     <View style={styles.container}>
       <View style={styles.navbar}>
         <TouchableOpacity style={styles.navbarButton} onPress={toggleDropdown} activeOpacity={0.7}>
-          <MaterialIcons name="menu" size={28} color="#3c6570ff" />
+          <MaterialIcons name="menu" size={28} color="#3d88a6ff" />
           <Text style={styles.navbarTitle}>Account Management</Text>
-          <MaterialIcons name={dropdownOpen ? "expand-less" : "expand-more"} size={28} color="#3c6570ff" />
+          <MaterialIcons name={dropdownOpen ? "expand-less" : "expand-more"} size={28} color="#3d88a6ff" />
         </TouchableOpacity>
         <Animated.View style={[styles.dropdown, { height: dropdownHeight, overflow: 'hidden' }]}>
           {settings.map((item) => (
@@ -60,7 +60,7 @@ const ProfileSettings = () => {
                 item.onPress();
               }}
             >
-              <MaterialIcons name={item.icon} size={22} color="#3c6570ff" style={styles.icon} />
+              <MaterialIcons name={item.icon} size={22} color="#3d88a6ff" style={styles.icon} />
               <Text style={styles.dropdownLabel}>{item.label}</Text>
             </Pressable>
           ))}
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   navbarTitle: {
-    color: '#3c6570ff',
+    color: '#3d88a6ff',
     fontSize: 22,
     fontWeight: 'bold',
     marginHorizontal: 12,
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   welcomeTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#3c6570ff',
+    color: '#3d88a6ff',
     marginBottom: 16,
     textAlign: 'center',
   },

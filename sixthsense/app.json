@@ -4,7 +4,7 @@
     "slug": "sixthsense",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/fishIcon.png",
+    "icon": "./assets/images/fishicon.png",
     "primaryColor": "#000000",
     "backgroundColor": "#000000",
     "scheme": "sixthsense",
@@ -26,14 +26,14 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/fishIcon.png"
+      "favicon": "./assets/images/fishicon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/fishIcon.png",
+          "image": "./assets/images/fishicon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",

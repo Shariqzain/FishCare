@@ -27,14 +27,14 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: () => <IconSymbol size={28} name="house.fill" color="#3c6570ff" />,
+          tabBarIcon: () => <IconSymbol size={28} name="house.fill" color="#3d88a6ff" />,
         }}
       />
         <Tabs.Screen
           name="profile"
           options={{
             title: 'Profile',
-            tabBarIcon: () => <IconSymbol size={28} name="person.circle" color="#3c6570ff" />,
+            tabBarIcon: () => <IconSymbol size={28} name="person.circle" color="#3d88a6ff" />,
           }}
         />
       {/* Removed signin and signup screens */}

@@ -76,7 +76,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       <View style={styles.overlay}>
         <View style={styles.logoContainer}>
           <Image
-            source={require('../../assets/images/fishlogo.jpg')}
+            source={require('../../assets/images/fishicon.png')}
             style={styles.logo}
           />
           
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     top: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: '#1648c7ff',
+    backgroundColor: '#53fcffff',
     borderRadius: 15,
     transformOrigin: 'left',
     zIndex: 2,
