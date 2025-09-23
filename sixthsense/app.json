@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "sixthsense",
-    "slug": "sixthsense",
+    "name": "Sixth Sense",
+    "slug": "Sixth Sense",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/fishIcon.png",
+    "icon": "./assets/images/fishlogo.png",
     "primaryColor": "#000000",
     "backgroundColor": "#000000",
     "scheme": "sixthsense",
@@ -26,14 +26,14 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/fishIcon.png"
+      "favicon": "./assets/images/fishlogo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/fishIcon.png",
+          "image": "./assets/images/fishlogo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",

@@ -76,7 +76,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       <View style={styles.overlay}>
         <View style={styles.logoContainer}>
           <Image
-            source={require('../../assets/images/fishlogo.jpg')}
+            source={require('../../assets/images/fishlogo.png')}
             style={styles.logo}
           />
           
