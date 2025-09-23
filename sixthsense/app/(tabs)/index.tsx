@@ -113,7 +113,7 @@ export default function HomeScreen() {
             <Text style={styles.actionButtonText}>Upload Data</Text>
           </BlurView>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/screens/ScanHistoryScreen')}>
           <BlurView intensity={20} tint="light" style={styles.actionButtonContent}>
             <Feather name="clock" size={24} color="white" />
             <Text style={styles.actionButtonText}>View History</Text>

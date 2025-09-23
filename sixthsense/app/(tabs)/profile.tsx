@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Alert, TouchableOpacity, Animated, Easing } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../hooks/auth-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
@@ -19,10 +19,11 @@ const ProfileSettings = () => {
   const [dropdownAnim] = useState(new Animated.Value(0));
 
   const router = useRouter();
+  const { signOut } = useAuth();
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('isLoggedIn');
-    router.replace('/screens/signin-signup');
+    await signOut();
+    router.replace('/');
   };
 
   const toggleDropdown = () => {

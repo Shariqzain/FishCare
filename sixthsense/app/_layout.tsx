@@ -1,8 +1,9 @@
+import React from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { useState } from 'react';
+import { AuthProvider, useAuth } from './hooks/auth-context';
 import SplashScreen from './screens/SplashScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -14,9 +15,17 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [showSplash, setShowSplash] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showAuth, setShowAuth] = useState(true);
+  return (
+    <AuthProvider>
+  <RootLayoutInner colorScheme={colorScheme ?? 'light'} />
+    </AuthProvider>
+  );
+}
+
+function RootLayoutInner({ colorScheme }: { colorScheme: string }) {
+  const { userToken, loading } = useAuth();
+  const [showSplash, setShowSplash] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   if (showSplash) {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;
@@ -26,8 +35,8 @@ export default function RootLayout() {
     return <LoadingScreen onComplete={() => setIsLoading(false)} />;
   }
 
-  if (showAuth) {
-    return <SigninSignupScreen onLogin={() => setShowAuth(false)} />;
+  if (!userToken) {
+    return <SigninSignupScreen />;
   }
 
   return (
