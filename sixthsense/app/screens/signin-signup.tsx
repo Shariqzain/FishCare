@@ -62,7 +62,7 @@ const SigninSignupScreen: React.FC = () => {
 				const data = await res.json();
 				if (res.ok) {
 					setUser(data);
-					await signIn(data.token || 'dummy-token', data.userId);
+					await signIn(data.token || 'dummy-token', data.userId, data.name);
 					router.replace('/(tabs)');
 				} else {
 					Alert.alert("Error", data.message || "Signin failed");

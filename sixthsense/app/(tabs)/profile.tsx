@@ -19,7 +19,7 @@ const ProfileSettings = () => {
   const [dropdownAnim] = useState(new Animated.Value(0));
 
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { signOut, userName } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
@@ -72,7 +72,7 @@ const ProfileSettings = () => {
         </Animated.View>
       </View>
       <View style={styles.bodyContent}>
-        <Text style={styles.welcomeTitle}>Welcome to FishCare Settings</Text>
+        <Text style={styles.welcomeTitle}>Welcome, {userName || 'User'}!</Text>
         <Text style={styles.info}>Manage your preferences and account here.</Text>
       </View>
     </View>
