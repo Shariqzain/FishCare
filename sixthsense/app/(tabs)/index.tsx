@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import React, { useState, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
@@ -42,6 +43,15 @@ export default function HomeScreen() {
     return () => clearInterval(timer);
   }, []);
 
+  const router = useRouter();
+
+  const handleImageClassification = (imageUri: string) => {
+    router.push({
+      pathname: '/modal',
+      params: { imageUri }
+    });
+  };
+
   const scanPhoto = async () => {
     if (hasCameraPermission) {
       const result = await ImagePicker.launchCameraAsync({
@@ -51,9 +61,7 @@ export default function HomeScreen() {
       });
 
       if (!result.canceled) {
-        // Handle the captured image
-        console.log(result.assets[0].uri);
-        // Add scanning logic here
+        handleImageClassification(result.assets[0].uri);
       }
     } else {
       alert('Camera permission is required to scan');
@@ -70,9 +78,7 @@ export default function HomeScreen() {
       });
 
       if (!result.canceled) {
-        // Handle the selected image
-        console.log(result.assets[0].uri);
-        // Add upload logic here
+        handleImageClassification(result.assets[0].uri);
       }
     } else {
       alert('Gallery permission is required to upload');

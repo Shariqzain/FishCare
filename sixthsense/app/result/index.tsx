@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
@@ -16,7 +15,6 @@ export default function ClassificationResult() {
   const [predictions, setPredictions] = React.useState<Prediction[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const router = useRouter();
 
   React.useEffect(() => {
     uploadAndClassify();
@@ -53,13 +51,10 @@ export default function ClassificationResult() {
       }
 
       const data = await response.json();
-      const results = data.predictions
-        .map((label: string, index: number) => ({
-          label,
-          confidence: data.confidence_scores[index],
-        }))
-        .sort((a: Prediction, b: Prediction) => b.confidence - a.confidence) // Sort by confidence in descending order
-        .slice(0, 2); // Take only top 2 predictions
+      const results = data.predictions.map((label: string, index: number) => ({
+        label,
+        confidence: data.confidence_scores[index],
+      }));
 
       setPredictions(results);
     } catch (err) {
@@ -72,12 +67,6 @@ export default function ClassificationResult() {
   return (
     <View style={styles.container}>
       <BlurView intensity={20} tint="light" style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => router.back()}
-        >
-          <Feather name="arrow-left" size={24} color="#fff" />
-        </TouchableOpacity>
         <Text style={styles.title}>Fish Classification Results</Text>
       </BlurView>
 
@@ -120,17 +109,12 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 40,
     padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    marginRight: 15,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
-    flex: 1,
+    textAlign: 'center',
   },
   content: {
     flex: 1,
