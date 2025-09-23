@@ -73,7 +73,9 @@ export default function ClassificationResult() {
       <ScrollView style={styles.content}>
         {imageUri && (
           <View style={styles.imageContainer}>
-            <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+            {typeof imageUri === 'string' && (
+              <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+            )}
           </View>
         )}
 
