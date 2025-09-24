@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from '../hooks/auth-context';
 import { View, Text, TextInput, Pressable, StyleSheet, Alert, ImageBackground, Dimensions, Platform } from "react-native";
 import { BlurView } from 'expo-blur';
+import { API_BASE_URL } from '../../constants/api';
 
 const { width, height } = Dimensions.get('window');
 // import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,7 +33,7 @@ const SigninSignupScreen: React.FC = () => {
 				return;
 			}
 			try {
-				const res = await fetch('http://192.168.1.55:5000/api/users/signup', {
+				const res = await fetch(`${API_BASE_URL}/api/users/signup`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ name, email, password })
@@ -54,7 +55,7 @@ const SigninSignupScreen: React.FC = () => {
 				return;
 			}
 			try {
-				const res = await fetch('http://192.168.1.55:5000/api/users/signin', {
+				const res = await fetch(`${API_BASE_URL}/api/users/signin`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ email, password })

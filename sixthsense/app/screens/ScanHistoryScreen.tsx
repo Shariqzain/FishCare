@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useAuth } from '../hooks/auth-context';
+import { API_BASE_URL } from '../../constants/api';
 
 const { width } = Dimensions.get('window');
 
@@ -31,15 +32,31 @@ export default function ScanHistoryScreen() {
     }
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`http://192.168.1.55:5000/api/scans/history/${userId}`);
+        console.log('Fetching scan history for userId:', userId);
+        console.log('API URL:', `${API_BASE_URL}/api/scans/history/${userId}`);
+        
+        const res = await fetch(`${API_BASE_URL}/api/scans/history/${userId}`);
+        console.log('Response status:', res.status);
+        
         const data = await res.json();
+        console.log('Response data:', data);
+        
         if (res.ok) {
           setHistory(data);
+          if (data.length === 0) {
+            console.log('No scan history found');
+          }
         } else {
-          setError(data.message || 'Failed to fetch history');
+          const errorMsg = data.message || 'Failed to fetch history';
+          console.error('Error fetching history:', errorMsg);
+          setError(errorMsg);
+          Alert.alert('Error', errorMsg);
         }
       } catch (err) {
-        setError('Network error');
+        const errorMsg = err instanceof Error ? err.message : 'Network error';
+        console.error('Error in fetchHistory:', errorMsg);
+        setError(errorMsg);
+        Alert.alert('Network Error', 'Could not connect to the server. Please check your connection and try again.');
       } finally {
         setLoading(false);
       }

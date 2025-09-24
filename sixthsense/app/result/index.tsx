@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../hooks/auth-context';
+import { API_BASE_URL } from '../../constants/api';
 
 const { width } = Dimensions.get('window');
 
@@ -80,6 +81,33 @@ const styles = StyleSheet.create({
     color: '#00ff9d',
     marginTop: 4,
   },
+  storeButton: {
+    backgroundColor: '#00c8ffff',
+    padding: 16,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  savedButton: {
+    backgroundColor: '#4CAF50',
+  },
+  disabledButton: {
+    backgroundColor: '#cccccc',
+    opacity: 0.7,
+  },
+  storeButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });
 
 const ResultScreen: React.FC = () => {
@@ -88,6 +116,8 @@ const ResultScreen: React.FC = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     uploadAndClassify();
@@ -132,19 +162,43 @@ const ResultScreen: React.FC = () => {
 
       setPredictions(results);
 
-      // Save scan to backend
+      // Save scan to backend automatically
       if (userId && results.length > 0) {
-        await fetch('http://192.168.1.55:5000/api/scans/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        try {
+          setIsSaving(true);
+          console.log('Saving scan:', {
             userId,
             imageUrl: imageUri,
-            result: results[0],
-          }),
-        });
+            result: results[0]
+          });
+
+          const saveScanResponse = await fetch(`${API_BASE_URL}/api/scans/add`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId,
+              imageUrl: imageUri,
+              result: results[0],
+            }),
+          });
+
+          const saveData = await saveScanResponse.json();
+          console.log('Save response:', saveData);
+
+          if (saveScanResponse.ok) {
+            setIsSaved(true);
+            Alert.alert('Success', 'Scan saved successfully!');
+          } else {
+            throw new Error(saveData.message || 'Failed to save scan');
+          }
+        } catch (saveErr) {
+          console.error('Error saving scan:', saveErr);
+          Alert.alert('Error', 'Failed to save scan to history. Please try again.');
+        } finally {
+          setIsSaving(false);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to classify image');
@@ -153,10 +207,45 @@ const ResultScreen: React.FC = () => {
     }
   };
 
+  const saveScan = async () => {
+    if (!userId || predictions.length === 0) {
+      Alert.alert('Error', 'Cannot save scan. Please try again.');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const bestResult = predictions[0]; // Use the highest confidence prediction
+
+      const saveScanResponse = await fetch(`${API_BASE_URL}/api/scans/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          imageUrl: imageUri,
+          result: bestResult,
+        }),
+      });
+
+      if (!saveScanResponse.ok) {
+        throw new Error('Failed to save scan');
+      }
+
+      setIsSaved(true);
+      Alert.alert('Success', 'Scan saved successfully!');
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to save scan');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <BlurView intensity={20} tint="light" style={styles.header}>
-        <Text style={styles.title}>Fish Classification Results</Text>
+        <Text style={styles.title}>Fish Classification</Text>
       </BlurView>
 
       <ScrollView style={styles.content}>
@@ -173,7 +262,7 @@ const ResultScreen: React.FC = () => {
             <Text style={styles.errorText}>{error}</Text>
           ) : (
             <>
-              <Text style={styles.subtitle}>Detected Fish Categories:</Text>
+              <Text style={styles.subtitle}>tegories:</Text>
               {predictions.map((prediction, index) => (
                 <View key={index} style={styles.predictionItem}>
                   <Text style={styles.predictionLabel}>{prediction.label}</Text>
@@ -182,6 +271,18 @@ const ResultScreen: React.FC = () => {
                   </Text>
                 </View>
               ))}
+              <TouchableOpacity
+                style={[styles.storeButton, 
+                  isSaved && styles.savedButton,
+                  (isSaving || isLoading) && styles.disabledButton
+                ]}
+                onPress={saveScan}
+                disabled={isSaving || isLoading || isSaved}
+              >
+                <Text style={styles.storeButtonText}>
+                  {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Store Result'}
+                </Text>
+              </TouchableOpacity>
             </>
           )}
         </BlurView>
