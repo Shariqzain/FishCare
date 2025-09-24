@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from '../hooks/auth-context';
 import { View, Text, TextInput, Pressable, StyleSheet, Alert, ImageBackground, Dimensions, Platform } from "react-native";
 import { BlurView } from 'expo-blur';
+import { API_BASE_URL } from '../../constants/api';
 
 const { width, height } = Dimensions.get('window');
 // import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,19 +33,21 @@ const SigninSignupScreen: React.FC = () => {
 				return;
 			}
 			try {
-				const res = await fetch('http://192.168.1.55:5000/api/users/signup', {
+				const res = await fetch(`${API_BASE_URL}/api/users/signup`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ name, email, password })
 				});
-				const data = await res.json();
-				if (res.ok) {
-					Alert.alert("Success", "Account created!", [{ text: "OK", onPress: () => setMode('signin') }]);
-				} else {
-					Alert.alert("Error", data.message || "Signup failed");
+				
+				if (!res.ok) {
+					const data = await res.json().catch(() => ({ message: 'Server error' }));
+					throw new Error(data.message || 'Signup failed');
 				}
-			} catch (err) {
-				Alert.alert("Error", "Network error");
+				
+				const data = await res.json();
+				Alert.alert("Success", "Account created!", [{ text: "OK", onPress: () => setMode('signin') }]);
+			} catch (err: any) {
+				Alert.alert("Error", err.message || "Network error. Please check your connection and try again.");
 			}
 			setLoading(false);
 		} else {
@@ -54,21 +57,23 @@ const SigninSignupScreen: React.FC = () => {
 				return;
 			}
 			try {
-				const res = await fetch('http://192.168.1.55:5000/api/users/signin', {
+				const res = await fetch(`${API_BASE_URL}/api/users/signin`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ email, password })
 				});
-				const data = await res.json();
-				if (res.ok) {
-					setUser(data);
-					await signIn(data.token || 'dummy-token', data.userId, data.name);
-					router.replace('/(tabs)');
-				} else {
-					Alert.alert("Error", data.message || "Signin failed");
+				
+				if (!res.ok) {
+					const data = await res.json().catch(() => ({ message: 'Server error' }));
+					throw new Error(data.message || 'Signin failed');
 				}
-			} catch (err) {
-				Alert.alert("Error", "Network error");
+				
+				const data = await res.json();
+				setUser(data);
+				await signIn(data.token || 'dummy-token', data.userId, data.name);
+				router.replace('/(tabs)');
+			} catch (err: any) {
+				Alert.alert("Error", err.message || "Network error. Please check your connection and try again.");
 			}
 			setLoading(false);
 		}
